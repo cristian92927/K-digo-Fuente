@@ -109,7 +109,8 @@ jobs:
           EOF
 
       - name: Levantar servicios
-        run: docker compose up -d --build
+        run: |
+          docker compose up -d --build || (docker compose logs backend && exit 1)
 
       - name: Esperar a que los servicios estén listos
         run: |
