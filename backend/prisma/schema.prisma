@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoDescuento {
+  PORCENTAJE
+  MONTO_FIJO
+}
+
+enum EstadoPromocion {
+  PROGRAMADA
+  ACTIVA
+  FINALIZADA
+}
+
+model Promocion {
+  id                Int                    @id @default(autoincrement())
+  nombre            String
+  productoCategoria String
+  tipoDescuento     TipoDescuento
+  valorDescuento    Decimal                @db.Decimal(10, 2)
+  fechaInicio       DateTime               @db.Date
+  fechaFin          DateTime               @db.Date
+  estado            EstadoPromocion        @default(PROGRAMADA)
+  creadoEn          DateTime               @default(now())
+  actualizadoEn     DateTime               @updatedAt
+  historial         HistorialEstado[]
+}
+
+model HistorialEstado {
+  id          Int             @id @default(autoincrement())
+  promocionId Int
+  estadoAntes EstadoPromocion
+  estadoDespues EstadoPromocion
+  creadoEn    DateTime        @default(now())
+  promocion   Promocion       @relation(fields: [promocionId], references: [id], onDelete: Cascade)
+}
