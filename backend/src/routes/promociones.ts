@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { EstadoPromocion, TipoDescuento } from '@prisma/client';
-import { prisma } from '../index';
+import { prisma } from '../db';
 import { validate } from '../middleware/validate';
 
 const router = Router();

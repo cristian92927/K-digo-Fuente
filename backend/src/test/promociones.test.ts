@@ -1,7 +1,5 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
-
-jest.mock('@prisma/client', () => {
-  const mockPrisma = {
+jest.mock('../db', () => ({
+  prisma: {
     promocion: {
       findMany: jest.fn(),
       findUnique: jest.fn(),
@@ -11,25 +9,21 @@ jest.mock('@prisma/client', () => {
       count: jest.fn(),
       groupBy: jest.fn(),
     },
-    historialEstado: {
-      create: jest.fn(),
-    },
+    historialEstado: { create: jest.fn() },
     $transaction: jest.fn(),
     $queryRaw: jest.fn(),
-  };
-  return { PrismaClient: jest.fn(() => mockPrisma), EstadoPromocion: {}, TipoDescuento: {} };
-});
+  },
+}));
 
 import request from 'supertest';
-import app, { prisma } from '../index';
+import app from '../index';
+import { prisma } from '../db';
 
-const p = prisma as jest.Mocked<typeof prisma>;
+const mockPrisma = prisma as jest.Mocked<typeof prisma>;
 
-beforeEach(() => {
-  jest.clearAllMocks();
-});
+beforeEach(() => jest.clearAllMocks());
 
-describe('POST /api/promociones - validaciones', () => {
+describe('POST /api/promociones — validaciones', () => {
   it('rechaza si falta nombre', async () => {
     const res = await request(app).post('/api/promociones').send({
       productoCategoria: 'Bebidas',
@@ -69,22 +63,14 @@ describe('POST /api/promociones - validaciones', () => {
 
 describe('DELETE /api/promociones/:id', () => {
   it('rechaza eliminar una promoción ACTIVA', async () => {
-    (p.promocion.findUnique as jest.Mock).mockResolvedValue({
-      id: 1,
-      estado: 'ACTIVA',
-    });
-
+    (mockPrisma.promocion.findUnique as jest.Mock).mockResolvedValue({ id: 1, estado: 'ACTIVA' });
     const res = await request(app).delete('/api/promociones/1');
     expect(res.status).toBe(400);
   });
 
   it('elimina una promoción PROGRAMADA', async () => {
-    (p.promocion.findUnique as jest.Mock).mockResolvedValue({
-      id: 1,
-      estado: 'PROGRAMADA',
-    });
-    (p.promocion.delete as jest.Mock).mockResolvedValue({});
-
+    (mockPrisma.promocion.findUnique as jest.Mock).mockResolvedValue({ id: 1, estado: 'PROGRAMADA' });
+    (mockPrisma.promocion.delete as jest.Mock).mockResolvedValue({});
     const res = await request(app).delete('/api/promociones/1');
     expect(res.status).toBe(204);
   });
@@ -92,7 +78,7 @@ describe('DELETE /api/promociones/:id', () => {
 
 describe('GET /health', () => {
   it('responde 200 cuando la BD está conectada', async () => {
-    (p.$queryRaw as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.$queryRaw as jest.Mock).mockResolvedValue([]);
     const res = await request(app).get('/health');
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');

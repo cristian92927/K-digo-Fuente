@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from './db';
 import promocionesRouter from './routes/promociones';
 
 const requiredEnvVars = ['DATABASE_URL'];
@@ -12,7 +12,6 @@ for (const v of requiredEnvVars) {
   }
 }
 
-export const prisma = new PrismaClient();
 const app = express();
 const PORT = process.env.PORT ?? 3000;
 
@@ -23,7 +22,7 @@ app.get('/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
     res.status(200).json({ status: 'ok', db: 'connected' });
-  } catch {
+  } catch (_err) {
     res.status(503).json({ status: 'error', db: 'disconnected' });
   }
 });
