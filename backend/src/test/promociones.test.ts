@@ -84,3 +84,17 @@ describe('GET /health', () => {
     expect(res.body.status).toBe('ok');
   });
 });
+
+describe('GET /api/promociones/resumen', () => {
+  it('vigentesHoy solo cuenta promociones ACTIVAS', async () => {
+    (mockPrisma.promocion.groupBy as jest.Mock).mockResolvedValue([]);
+    (mockPrisma.promocion.count as jest.Mock).mockResolvedValue(1);
+
+    const res = await request(app).get('/api/promociones/resumen');
+    expect(res.status).toBe(200);
+    expect(res.body.vigentesHoy).toBe(1);
+
+    const countCall = (mockPrisma.promocion.count as jest.Mock).mock.calls[0][0];
+    expect(countCall.where.estado).toBe('ACTIVA');
+  });
+});

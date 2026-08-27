@@ -55,6 +55,7 @@ router.get('/resumen', async (_req: Request, res: Response) => {
     }),
     prisma.promocion.count({
       where: {
+        estado: 'ACTIVA',
         fechaInicio: { lte: hoy },
         fechaFin: { gte: hoy },
       },

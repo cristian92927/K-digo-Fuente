@@ -29,8 +29,10 @@ app.get('/health', async (_req, res) => {
 
 app.use('/api/promociones', promocionesRouter);
 
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Servidor escuchando en puerto ${PORT}`);
+  });
+}
 
 export default app;
