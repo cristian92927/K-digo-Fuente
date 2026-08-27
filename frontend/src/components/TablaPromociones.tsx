@@ -1,4 +1,3 @@
-import React from 'react';
 import { Promocion } from '../api/promociones';
 
 interface Props {

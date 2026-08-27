@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { api, CrearPromocionDto, Promocion, Resumen } from './api/promociones';
 import { ResumenCards } from './components/ResumenCards';
 import { FormPromocion } from './components/FormPromocion';
